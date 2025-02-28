@@ -1,5 +1,4 @@
 # Projects
-Portfolio Analysis and Backtesting Projects
 Welcome to my GitHub repository! This repository contains three distinct projects focused on portfolio analysis, optimization, and backtesting. Each project explores different aspects of financial data analysis, from risk assessment to algorithmic trading strategies. Below is a brief overview of each project:
 
 # Project 1: Portfolio Risk Analysis
