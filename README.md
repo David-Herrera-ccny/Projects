@@ -9,5 +9,5 @@ This project involved selecting a basket of seven assets, calculating their indi
 # Project 3: Long-Short Portfolio Backtesting
 This project focused on building a long-short portfolio using Berry Cox’s price momentum factors. The strategy was backtested using five years of historical data to evaluate its performance. The goal was to assess the effectiveness of the momentum-based strategy in generating returns while managing risk.
 
-#Messi vs Real Betis — Soccer Analytics Project
+# Messi vs Real Betis — Soccer Analytics Project
 This project analyzes Lionel Messi’s performance against Real Betis using spatial event data. The goal is to explore how Messi progressed the ball, where he operated on the pitch, and how his actions contributed to attacking sequences. The project uses Python, Pandas, Matplotlib, Seaborn, and mplsoccer to visualize passes, movements, and heat density patterns.
