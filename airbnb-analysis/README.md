@@ -31,7 +31,12 @@ Key variables include:
 ## Results
 The analysis highlights meaningful relationships between property size, accommodation capacity, and listing prices, as well as differences in occupancy rates across cities and property types. These findings provide insight into how hosts can optimize pricing strategies based on property features.
 
-**Airbnb Pricing & Occupancy Analysis (Live Report)**  
-[View the live Airbnb analysis](https://david-herrera-ccny.github.io/Projects/airbnb-analysis/)
+**Airbnb Pricing & Occupancy Analysis (Live Report)**
+<p>
+<a href="https://david-herrera-ccny.github.io/Projects/airbnb-analysis/" target="_blank">
+View Live Airbnb Pricing & Occupancy Report
+</a>
+</p>
+
 
 
