@@ -1,0 +1,264 @@
+---
+title: "STA 9750 Final Independent Report"
+format: 
+  html: 
+    mainfont: "Georgia"
+editor: visual
+engine: knitr
+execute:
+  echo: true
+  warning: false
+  message: false
+css: styles.css
+---
+
+\#
+
+<center>**How Property Characteristics Influence Airbnb Prices and Occupancy**</center>
+
+Specific Question: *How do property characteristics (number of bedrooms, bathrooms, beds, accommodates, property type, and room type) influence Airbnb listing prices and occupancy rates across major U.S. cities?*
+
+\##
+
+<center>**Introduction**</center>
+
+This report examines the characteristics of Airbnb listings across major U.S. cities. In my analytical process, I chose to focus on three major cities: New York City, Chicago, and Los Angeles. The analysis aims to explore relationships between property features and two outcomes: listing prices and occupancy rates. Additionally, insights are derived to understand the distribution of average prices and occupancy rates across the most common property types in each city. The report is organized into four main sections: data acquisition and processing, regression modeling, aggregation and visualization of key metrics, and interpretation of results.
+
+#### **1. Data Acquisition and Initial Cleaning**
+
+The datasets analyzed consist of Airbnb listing information provided as CSV files from the [InsideAirbnb](https://insideairbnb.com/) data source. Each dataset contains the variables of listing price, availability, property characteristics (number of bedrooms, bathrooms, and beds), and property type. To make the report replicable, I created a custom function “load_city_data” that accepts the file path and a city name, and returns a cleaned data frame with relevant variables transformed.
+
+```{r}
+library(tidyverse)
+library(plotly)
+
+# Function to load and clean a city's data
+load_city_data <- function(file_path, city_name) {
+  read_csv(file_path, show_col_types = FALSE) %>%
+    mutate(
+      # Removes '$' and ','
+      price = as.numeric(str_remove_all(as.character(price), "[$,]")),
+      
+      # Calculate occupancy rate using availability_365
+      occupancy_rate = 1 - (availability_365 / 365),
+      
+      bathrooms = as.numeric(bathrooms),
+      city = city_name
+    ) %>%
+    # Remove outliers
+    filter(!is.na(price), price > 0, price < 1000)
+}
+```
+
+The process of cleaning the data included:
+
+1.  Price conversion: Prices are initially stored as character strings with ‘\$’ and ‘,’ symbols. These are removed, and the column is converted into numerics.
+
+2.  Occupancy rate calculation: Given the column ‘availability_365’, the variable occupancy_rate is derived by: occupancy_rate = 1 - (availability_365 / 365). This gives us the proportion of days a property is booked. 
+
+3.  Bathroom conversion: Bathrooms are converted to numerics, as some entries may contain text descriptors.
+
+4.  Filtering: Properties with missing or unrealistic prices (less than 0 or over \$1000) are removed. This threshold ensures extreme outliers do not bias the analysis. 
+
+This function is then applied to each city:
+
+```{r}
+# Load city datasets using the functions
+nyc <- load_city_data("D:/School/Projects/new_listing.csv/New_York_listings.csv", "New York")
+la <- load_city_data("D:/School/Projects/new_listing.csv/Los_Angeles_listings.csv", "Los Angeles")
+chicago <- load_city_data("D:/School/Projects/new_listing.csv/Chicago_listings.csv", "Chicago")
+```
+
+To perform a comparative analysis, the city datasets were combined using bind_rows:
+
+```{r}
+# Combine datasets
+all_cities <- bind_rows(nyc, la, chicago)
+```
+
+#### **2. Regression Analysis**
+
+Two regression models were used:
+
+1.  Price model: Explains price based on property features.
+
+2.  Occupancy Model: Explains the occupancy rate using the same characteristics.
+
+#### **2.1 Price Model Fit:**
+
+```{r}
+# Regression model: Price vs Property Characteristics
+price_model <- lm(price ~ bedrooms + bathrooms + beds + accommodates + property_type + room_type, data = all_cities)
+summary(price_model)
+```
+
+-   Adjusted R^2^: 0.3902
+
+-   Residual Standard Error: 127.9
+
+-   F-statistic: 418 on 97 and 63,122 DF (p \< 2.2e-16)
+
+The price regression model explains nearly 39% of variation in price, indicating strong explanatory power given the diversity of Airbnb listings across cities.
+
+#### **2.2 Key Coefficients:**
+
+| Variable | Estimate | P-value | Interpretation |
+|----|----|----|----|
+| Bedrooms | +19.31 | \< 2e-16 | Each additional bedroom increases the price by \~\$19 |
+| Bathrooms | +45.26 | \< 2e-16 | Strongest positive indicator, additional bathrooms increase price by \~ \$45 |
+| Accommodates | +10.65 | \< 2e-16 | Each additional guest capacity increases the price by \~ \$11 |
+| Beds | -0.50 | 0.44 | Not significant once bedrooms and accommodations were included |
+| Entire villa | +186.96 | 1.66e-05 | Villas demand premium prices due to exclusivity |
+| Entire resorts | +277.77 | 0.039 | Resorts are among the most expensive listings |
+| Private room | -136.8 | 0.0056 | Private rooms are significantly cheaper than entire properties |
+| Private room in guest house | -218.01 | 4.23e-06 | Reinforces the strong price gap between shared and entire properties |
+| Hotel room | +172.46 | \< 2e-16 | Hotel-style rooms are priced substantially above the mean |
+
+#### **2.3 Interpreting Results**
+
+-   Bathrooms are the most impactful quantitative predictor, followed by bedrooms and accommodations.
+
+-   Entire and luxury property types show large positive price effects (villas, resorts).
+
+-   Private or shared rooms reduce price sharply, confirming that privacy drives value.
+
+Because property type and room type emerged as major categorial predictors, visualization focused on average price by property type to illustrate these relationships across cities. This decision reflects model findings, the regression coefficients suggested wide variation in pricing across categories, which warranted deeper visual comparison.
+
+#### **2.4 Occupancy Model Fit:**
+
+```{r}
+# Regression model: Occupancy Rate vs Property Characteristics
+occupancy_model <- lm(occupancy_rate ~ room_type + minimum_nights + number_of_reviews + reviews_per_month + calculated_host_listings_count, data = all_cities)
+summary(occupancy_model)
+```
+
+-   Adjusted R^2^: 0.01405
+
+-   Residual Standard Error: 0.2947
+
+-   F-statistic: 10.4 on 96 and 63,222 DF (p \< 2.2e-16)
+
+Although the model is statistically significant, it explains only about 1.4% of the variation in occupancy rates, indicating that occupancy is more influenced by external factors, such as seasonality and location.
+
+#### **2.5 Key Coefficients:**
+
+| Variable | Estimate | P-value | Interpretation |
+|----|----|----|----|
+| Bedrooms | +0.00426 | 0.0179 | Slight positive effect, larger units are marginally more occupied |
+| Bathrooms | -0.01897 | \< 2e-16 | Negative relationship, larger homes with multiple bathrooms see lower utilization |
+| Accommodates | -0.00307 | 0.00012 | As capacity rises, occupancy slightly drops |
+| Hotel room | +0.123 | 0.003 | Hotel-style listings achieve steadier occupancy |
+| Private room | +0.205 | 2.3e-08 | Private rooms sustain higher utilization due to affordability |
+| Private room in serviced apartments | -0.299 | 0.007 | Lower occupancy, likely due to factors not in this report |
+| Private room in a vacation home | -0.291 | 0.049 | Vacation houses suggest that seasonal use results in reduced occupancy |
+
+#### **2.6 Interpreting Results**
+
+-   Smaller, budget-friendly spaces like private rooms and hotel rooms have higher occupancy.
+
+-   Luxury or large homes trade occupancy frequency for higher prices, consistent with the price model.
+
+-   Bathroom and accommodation variables show that more amenities imply less frequent but higher value stays.
+
+The regression model shows strong categorical effects again, but for different reasons than the price model. Whereas price varies upward with entire and luxury properties, occupancy varies downward with them. With these results, I implemented two complementary plots: “Average Price by Property Type” and “Average Occupancy by Property Type”.
+
+#### **3. Visual Analysis**
+
+```{r}
+# Select Top 5 Most Common Property Types
+top_types <- all_cities %>%
+  count(property_type, sort = TRUE) %>%
+  slice_head(n = 5) %>%
+  pull(property_type)
+
+filtered_data <- all_cities %>%
+  filter(property_type %in% top_types)
+
+# Grouping and creating Average Price by Top 5 Property Type
+avg_price_type <- filtered_data %>%
+  group_by(city, property_type) %>%
+  summarise(avg_price = mean(price, na.rm = TRUE), .groups = "drop")
+
+# Plot for Average Price by Top 5 Property Type
+avg_price_plot <- ggplot(avg_price_type, aes(x = reorder(property_type, -avg_price), y = avg_price, fill = city)) +
+  geom_col(position = "dodge", width = 0.7) +
+  labs(
+    title = "Average Price by Top 5 Property Types",
+    x = "Property Type",
+    y = "Average Price (USD)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1),
+    plot.title = element_text(face = "bold", hjust = 0.5)
+  )
+ggplotly(avg_price_plot)
+```
+
+By grouping by city and organizing by property type, the bar charts were able to visually communicate the differences in both average price and average occupancy rate among the three cities. Because the regression results indicated that property type and room type had the largest and most significant effects on both price and occupancy rate, the grouped bar charts allow for an immediate, side-by-side comparison across these categories and cities. Grouping by city provides an additional dimension to the analysis, showing how the same property types perform differently across distinct markets. For instance, an “ Entire Home” may demand a much higher average price in New York than in Los Angeles, while occupancy rates may be higher in Chicago due to lower average prices. 
+
+```{r}
+# Top 5 most common room types
+top_room_types <- all_cities %>%
+  count(room_type, sort = TRUE) %>%
+  slice_head(n = 5) %>%
+  pull(room_type)
+
+filtered_occ <- all_cities %>%
+  filter(room_type %in% top_room_types)
+
+# Average Occupancy Rate by Top 5 Room Types
+avg_occ_type <- filtered_occ %>%
+  group_by(city, room_type) %>%
+  summarise(avg_occ = mean(occupancy_rate, na.rm = TRUE) * 100, .groups = "drop")
+
+avg_occ_plot <- ggplot(avg_occ_type, aes(x = reorder(room_type, -avg_occ), y = avg_occ, fill = city)) +
+  geom_col(position = "dodge", width = 0.7) +
+  labs(
+    title = "Average Occupancy Rate by Top 5 Room Types",
+    x = "Room Type",
+    y = "Average Occupancy Rate (%)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 30, hjust = 1),
+    plot.title = element_text(face = "bold", hjust = 0.5)
+  )
+ggplotly(avg_occ_plot)
+```
+
+Similar to the price plot, this chart visualizes the average occupancy rate. This symmetry between the two plots is deliberate; it enables a direct visual comparison between how property characteristics affect pricing versus demand utilization. The same property type categories are used to maintain compatibility, as well as grouping by city again to highlight local market differences. Together, these charts provide a clear, consistent visual structure for interpreting the regression models. The price plot reflects the positive effects of entire homes and villas found in the price regression, while the occupancy plot reveals the inverse trend, where those same property types have a relatively lower occupancy rate.
+
+#### **3.1 Interpretation of Results**
+
+In the price chart, “Entire home” and “Entire rental unit” listings consistently show the highest average prices, confirming the strong positive coefficients seen in the regression. In the occupancy chart, “Private room” listings exhibit competitive occupancy rates across all cities, matching the positive coefficients from the occupancy model for the variable “Private room”. Chicago shows the highest average occupancy overall, suggesting a more balanced supply-demand dynamic, while New York shows the highest prices but relatively lower occupancy. These findings illustrate the trade-off between price and utilization predicted by the regression models: higher-priced property types tend to exhibit lower occupancy rates, while lower-priced, smaller listings achieve steadier booking frequency.
+
+#### **4. Conclusion of Results**
+
+This study shows that property characteristics are major determinants of price but minor determinants of occupancy. Bathrooms and bedrooms strongly increase price, while smaller, affordable listings secure higher utilization. The two regression models and their accompanying visualizations reveal a clear economic balance, hosts of larger or luxury properties can expect higher prices but lower booking frequency, and smaller or shared units maximize occupancy at lower rates. By combining regression analysis with visualization, this report highlights the dual impact of structural features on both pricing strategy and booking performance across major U.S. Airbnb markets.
+
+#### **4.1 Limitations**
+
+Despite the strength of these relationships, several limitations must still be acknowledged:
+
+1.  The analysis approximated occupancy using "1 - availability_365 / 365", which treats unavailable days as booked. This method cannot distinguish between actual reservations and host-blocked availability, potentially overstating occupancy in some cases.
+
+2.  Neighborhood effects, proximity to locations such as trains, schools or parks, and seasonal demand variation were not included in the models. These factors likely explain the portion of the variation in occupancy and price not mentioned in this report.
+
+3.  The data represents a single time frame and cannot capture trends, or major changes in markets like the pandemic.
+
+These limitations highlight that while property characteristics are essential predictors of price, they capture only part of the complex economic behavior underlying Airbnb demand.
+
+#### **4.2 Future Work**
+
+To strengthen and expand this analysis, several methodological improvements could be done:
+
+1.  Future models should integrate geographical data, and seasonal variables to control for location-specific and seasonal variations in demand.
+
+2.  Rather than relying on the availability counts, further analysis could have been with a calendar csv data to calculate booking rates per listing, providing a more accurate occupancy rate.
+
+3.  Expanding visualization to be more dynamic and interactive.
+
+#### **4.3 Final Reflection**
+
+This study provides clear empirical evidence that physical property characteristics are strong determinants of price but weaker predictors of occupancy. These findings suggest that hosts and investors face a trade-off between maximizing price per night and achieving consistent booking frequency. Airbnb owners therefore have to decide depending on individual priorities. Owners of larger and more luxurious properties, can set a premium price to offset the lower occupancy, while smaller and more private room hosts can achieve a more steady occupancy and revenue through affordability. Ultimately while property traits set the foundation for value, market context, location, and seasonality remain decisive factors in Airbnb performance. By refining future models to incorporate location and seasonal dimensions, researchers can gain a better understanding of the economic drivers shaping the Airbnb market across major U.S cities.
