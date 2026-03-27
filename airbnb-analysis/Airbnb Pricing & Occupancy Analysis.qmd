@@ -1,5 +1,5 @@
 ---
-title: "STA 9750 Final Independent Report"
+title: "Airbnb Pricing & Occupancy Analysis"
 format: 
   html: 
     mainfont: "Georgia"
