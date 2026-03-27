@@ -15,6 +15,12 @@ Identify the optimal asset allocation that maximizes returns for a given level o
 - Identified optimal portfolios with the highest Sharpe ratio
 - Demonstrated the risk-return tradeoff across different portfolio allocations
 
+## Efficient Frontier
+
+Visualization of optimal portfolios showing the risk-return tradeoff and Sharpe ratio.
+
+![Efficient Frontier](./efficient-frontier.png)
+
 ## Tech Stack
 Python, NumPy, Pandas, Matplotlib
 
