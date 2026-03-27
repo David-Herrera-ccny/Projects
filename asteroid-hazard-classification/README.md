@@ -33,6 +33,12 @@ The dataset contains extreme class imbalance (~0.2% hazardous asteroids), making
 - Absolute magnitude (`H`) was a more important predictor than MOID
 - Recall was prioritized over precision due to real-world risk implications (missing a hazardous asteroid is more critical than false alarms)
 
+## Model Performance
+
+Comparison of baseline vs retrained models across key evaluation metrics.
+
+![Model Performance](./model-performance-comparison.png)
+
 ## Tech Stack
 - Python
 - Pandas, NumPy
