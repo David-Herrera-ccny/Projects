@@ -1,18 +1,86 @@
-# Projects
-Welcome to my GitHub repository! Here you’ll find a curated set of academic and self-driven projects demonstrating my skills in Python, data analytics, machine learning, and visualization. These projects represent my ongoing development as a data-focused problem solver.
+# Data Analytics & Machine Learning Portfolio
 
-# Portfolio Risk Analysis
-In this project, I created a portfolio of seven NYSE-traded assets and performed a comprehensive risk analysis. The portfolio's performance was compared against major indices such as the S&P 500 (SPY), Russell 2000 (IWM), and the Dow Jones Industrial Average (DIA). 
-# Portfolio Optimization with Efficient Frontier
-This project involved selecting a basket of seven assets, calculating their individual risk/return values, and combining them to create the efficient frontier. Two methods were used for optimization: the Monte Carlo method and linear regression. The results were plotted to visualize the optimal portfolio combinations.
+Hi, I'm David Herrera, a Business Analytics graduate student at Baruch College focused on data analysis, machine learning, and data-driven decision making.
 
-# Long-Short Portfolio Backtesting
-This project focused on building a long-short portfolio using Berry Cox’s price momentum factors. The strategy was backtested using five years of historical data to evaluate its performance. The goal was to assess the effectiveness of the momentum-based strategy in generating returns while managing risk.
+This repository showcases a curated portfolio of projects using Python, R, and statistical modeling to solve real-world business and analytical problems.
 
-# Messi vs Real Betis — Soccer Analytics Project
-This project analyzes Lionel Messi’s performance against Real Betis using spatial event data. The goal is to explore how Messi progressed the ball, where he operated on the pitch, and how his actions contributed to attacking sequences. The project uses Python, Pandas, Matplotlib, Seaborn, and mplsoccer to visualize passes, movements, and heat density patterns.
+---
 
-# Airbnb Pricing and Occupancy Analysis
+## Featured Projects
 
-## Project Overview
-This project analyzes how property characteristics influence Airbnb listing prices and occupancy rates across major U.S. cities. The analysis focuses on identifying key drivers of pricing and demand using statistical methods and data visualization.
+### Airbnb Pricing & Occupancy Analysis
+Analyzed how property characteristics influence Airbnb pricing and occupancy across major U.S. cities using regression modeling and data visualization.
+
+**Tools:** R, Quarto, tidyverse, ggplot2  
+**Skills:** Exploratory Data Analysis, Regression, Data Storytelling  
+
+🔗 **Live Report:**  
+https://david-herrera-ccny.github.io/Projects/airbnb-analysis/
+
+---
+
+### Asteroid Hazard Classification (Machine Learning)
+Built classification models to predict whether an asteroid is potentially hazardous using NASA data, addressing extreme class imbalance.
+
+**Tools:** Python, scikit-learn, Pandas, NumPy  
+**Skills:** Classification Modeling, Model Evaluation, Feature Importance  
+
+📁 [View Project](./asteroid-hazard-classification/)
+
+---
+
+### Portfolio Risk Analysis
+Analyzed equity portfolio risk using real-time market data, calculating volatility and beta across multiple benchmarks.
+
+**Tools:** Python, Pandas, NumPy, yfinance  
+**Skills:** Financial Analysis, Risk Metrics, Time-Series Analysis  
+
+📁 [View Project](./portfolio-risk-analysis/)
+
+---
+
+### Portfolio Optimization using Efficient Frontier
+Simulated thousands of portfolio combinations to identify optimal risk-return tradeoffs using Modern Portfolio Theory.
+
+**Tools:** Python, NumPy, Pandas, Matplotlib  
+**Skills:** Optimization, Monte Carlo Simulation, Data Visualization  
+
+📁 [View Project](./portfolio-optimization-efficient-frontier/)
+
+---
+
+### Long-Short Equity Strategy Backtesting
+Implemented and evaluated a long-short investment strategy using historical data.
+
+**Tools:** Python, Pandas  
+**Skills:** Backtesting, Financial Modeling, Performance Analysis  
+
+📁 [View Project](./long-short-equity-backtesting/)
+
+---
+
+### Messi Shot Heatmap Analysis
+Visualized Lionel Messi’s shot distribution using spatial data analysis to identify scoring patterns.
+
+**Tools:** Python, Matplotlib, Seaborn  
+**Skills:** Data Visualization, Spatial Analysis  
+
+---
+
+## Technical Skills
+
+**Programming & Tools:**  
+Python, R, SQL, Tableau, Excel, Git  
+
+**Libraries & Frameworks:**  
+Pandas, NumPy, scikit-learn, Matplotlib, Seaborn, tidyverse  
+
+**Core Skills:**  
+Data Analysis, Machine Learning, Regression, Classification, Data Visualization, KPI Development  
+
+---
+
+## 📬 Contact
+
+- LinkedIn: https://linkedin.com/in/davidherrera-  
+- Email: dvhp123@gmail.com
