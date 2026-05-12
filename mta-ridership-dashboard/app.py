@@ -9,10 +9,10 @@ st.set_page_config(
     layout="wide"
 )
 
-DB_PATH = "data/mta_ridership.db"
-CSV_PATH = "data/mta_ridership_sample.csv"
+DB_PATH = "mta-ridership-dashboard/data/mta_ridership.db"
+CSV_PATH = "mta-ridership-dashboard/data/mta_ridership_sample.csv"
 
-os.makedirs("data", exist_ok=True)
+os.makedirs("mta-ridership-dashboard/data", exist_ok=True)
 
 # -----------------------
 # SQLite Connection
