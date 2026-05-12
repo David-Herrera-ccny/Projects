@@ -2,11 +2,24 @@
 
 Hi, I'm David Herrera, a Business Analytics graduate student at Baruch College focused on data analysis, machine learning, and data-driven decision making.
 
-This repository showcases a curated portfolio of projects using Python, R, and statistical modeling to solve real-world business and analytical problems.
+This repository showcases deployed analytics dashboards, machine learning models, financial analysis projects, and statistical research using real-world datasets to solve business problems and support data-driven decision making.
 
 ---
 
 ## Featured Projects
+
+# NYC Subway Ridership Analytics Dashboard
+
+Built an interactive dashboard to analyze NYC MTA subway ridership trends, peak commuting hours, busiest station complexes, borough-level traffic, weekday vs. weekend demand, and OMNY fare adoption using real transit data.
+
+**Tools:** Python, SQL, SQLite, Streamlit, Plotly  
+**Skills:** Dashboard Development, SQL Querying, KPI Analysis, Data Visualization, Business Intelligence
+
+🔗 **Live Dashboard:**  
+[https://your-streamlit-app-link.streamlit.app/](https://david-herrera-ccny-projects-mta-ridership-dashboardapp-jvkpmu.streamlit.app/)
+
+📁 **View Project:**  
+https://github.com/David-Herrera-ccny/Projects/tree/main/mta-ridership-dashboard
 
 ### Airbnb Pricing & Occupancy Analysis
 Analyzed how property characteristics influence Airbnb pricing and occupancy across major U.S. cities using regression modeling and data visualization.
