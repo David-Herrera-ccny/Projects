@@ -8,7 +8,7 @@ This repository showcases deployed analytics dashboards, machine learning models
 
 ## Featured Projects
 
-# NYC Subway Ridership Analytics Dashboard
+### NYC Subway Ridership Analytics Dashboard
 
 Built an interactive dashboard to analyze NYC MTA subway ridership trends, peak commuting hours, busiest station complexes, borough-level traffic, weekday vs. weekend demand, and OMNY fare adoption using real transit data.
 
@@ -20,6 +20,8 @@ https://david-herrera-ccny-projects-mta-ridership-dashboardapp-jvkpmu.streamlit.
 
 📁 **View Project:**  
 https://github.com/David-Herrera-ccny/Projects/tree/main/mta-ridership-dashboard
+
+---
 
 ### Airbnb Pricing & Occupancy Analysis
 Analyzed how property characteristics influence Airbnb pricing and occupancy across major U.S. cities using regression modeling and data visualization.
