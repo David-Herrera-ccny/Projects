@@ -3,16 +3,19 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import sqlite3
+from pathlib import Path
 
 st.set_page_config(
     page_title="NYC Subway Ridership Analytics Dashboard",
     layout="wide"
 )
 
-DB_PATH = "mta-ridership-dashboard/data/mta_ridership.db"
-CSV_PATH = "mta-ridership-dashboard/data/mta_ridership_sample.csv"
+BASE_DIR = Path(__file__).parent
 
-os.makedirs("mta-ridership-dashboard/data", exist_ok=True)
+DB_PATH = BASE_DIR / "data" / "mta_ridership.db"
+CSV_PATH = BASE_DIR / "data" / "mta_ridership_sample.csv"
+
+DB_PATH.parent.mkdir(exist_ok=True)
 
 # -----------------------
 # SQLite Connection
