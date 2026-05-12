@@ -16,7 +16,7 @@ Built an interactive dashboard to analyze NYC MTA subway ridership trends, peak 
 **Skills:** Dashboard Development, SQL Querying, KPI Analysis, Data Visualization, Business Intelligence
 
 🔗 **Live Dashboard:**  
-[https://your-streamlit-app-link.streamlit.app/](https://david-herrera-ccny-projects-mta-ridership-dashboardapp-jvkpmu.streamlit.app/)
+https://david-herrera-ccny-projects-mta-ridership-dashboardapp-jvkpmu.streamlit.app/
 
 📁 **View Project:**  
 https://github.com/David-Herrera-ccny/Projects/tree/main/mta-ridership-dashboard
