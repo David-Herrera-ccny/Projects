@@ -2,8 +2,9 @@ import os
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import sqlite3
 from pathlib import Path
+
+from db import build_database, connect, is_built
 
 st.set_page_config(
     page_title="NYC Subway Ridership Analytics Dashboard",
@@ -22,37 +23,22 @@ DB_PATH.parent.mkdir(exist_ok=True)
 # -----------------------
 @st.cache_resource
 def get_connection():
-    conn = sqlite3.connect(
+    conn = connect(
         DB_PATH,
         check_same_thread=False
     )
 
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT name
-        FROM sqlite_master
-        WHERE type='table'
-        AND name='ridership_hourly'
-    """)
-
-    table_exists = cursor.fetchone()
-
-    if table_exists is None:
-        df = pd.read_csv(CSV_PATH)
-        df.to_sql(
-            "ridership_hourly",
-            conn,
-            if_exists="replace",
-            index=False
-        )
+    # Build the normalized tables from the sample CSV on first launch
+    if not is_built(conn):
+        build_database(conn, CSV_PATH)
 
     return conn
 
 conn = get_connection()
 
-def run_query(query):
+def run_query(query, params=()):
     try:
-        return pd.read_sql_query(query, conn)
+        return pd.read_sql_query(query, conn, params=params)
     except Exception as e:
         st.error(f"Query failed: {e}")
         return pd.DataFrame()
@@ -60,19 +46,30 @@ def run_query(query):
 st.title("NYC Subway Ridership Analytics Dashboard")
 st.write("Analysis of MTA subway ridership using Python, SQL, SQLite, and Streamlit.")
 
+row_count_df = run_query("SELECT COUNT(*) AS n FROM ridership_hourly")
+if not row_count_df.empty:
+    st.caption(f"Based on {row_count_df['n'].iloc[0]:,} hourly ridership records.")
+
 # -----------------------
 # Sidebar Filters
 # -----------------------
 boroughs_df = run_query("""
-SELECT DISTINCT borough 
-FROM ridership_hourly 
+SELECT DISTINCT borough
+FROM stations
 ORDER BY borough
 """)
 
 payment_df_raw = run_query("""
-SELECT DISTINCT payment_method 
-FROM ridership_hourly 
+SELECT DISTINCT payment_method
+FROM fare_classes
 ORDER BY payment_method
+""")
+
+date_range_df = run_query("""
+SELECT
+    MIN(date(transit_timestamp)) AS min_date,
+    MAX(date(transit_timestamp)) AS max_date
+FROM ridership_hourly
 """)
 
 selected_borough = st.sidebar.selectbox(
@@ -80,21 +77,64 @@ selected_borough = st.sidebar.selectbox(
     ["All"] + boroughs_df["borough"].dropna().tolist()
 )
 
+# Station list follows the borough selection
+if selected_borough != "All":
+    stations_df = run_query("""
+    SELECT station_complex
+    FROM stations
+    WHERE borough = ?
+    ORDER BY station_complex
+    """, (selected_borough,))
+else:
+    stations_df = run_query("""
+    SELECT station_complex
+    FROM stations
+    ORDER BY station_complex
+    """)
+
+selected_station = st.sidebar.selectbox(
+    "Select Station",
+    ["All"] + stations_df["station_complex"].dropna().tolist()
+)
+
 selected_payment = st.sidebar.selectbox(
     "Select Payment Method",
     ["All"] + payment_df_raw["payment_method"].dropna().tolist()
+)
+
+min_date = pd.to_datetime(date_range_df["min_date"].iloc[0]).date()
+max_date = pd.to_datetime(date_range_df["max_date"].iloc[0]).date()
+
+selected_dates = st.sidebar.date_input(
+    "Select Date Range",
+    value=(min_date, max_date),
+    min_value=min_date,
+    max_value=max_date
 )
 
 # -----------------------
 # WHERE Clause
 # -----------------------
 where_clauses = []
+params = []
 
 if selected_borough != "All":
-    where_clauses.append(f"borough = '{selected_borough}'")
+    where_clauses.append("borough = ?")
+    params.append(selected_borough)
+
+if selected_station != "All":
+    where_clauses.append("station_complex = ?")
+    params.append(selected_station)
 
 if selected_payment != "All":
-    where_clauses.append(f"payment_method = '{selected_payment}'")
+    where_clauses.append("payment_method = ?")
+    params.append(selected_payment)
+
+# date_input returns a single date until both ends of the range are picked
+if len(selected_dates) == 2:
+    where_clauses.append("date BETWEEN ? AND ?")
+    params.append(selected_dates[0].isoformat())
+    params.append(selected_dates[1].isoformat())
 
 where_sql = ""
 if where_clauses:
@@ -105,31 +145,31 @@ if where_clauses:
 # -----------------------
 total_df = run_query(f"""
 SELECT SUM(ridership) AS total_ridership
-FROM ridership_hourly
+FROM ridership_detail
 {where_sql}
-""")
+""", params)
 
 busiest_df = run_query(f"""
 SELECT 
     station_complex, 
     SUM(ridership) AS total_ridership
-FROM ridership_hourly
+FROM ridership_detail
 {where_sql}
 GROUP BY station_complex
 ORDER BY total_ridership DESC
 LIMIT 1
-""")
+""", params)
 
 peak_hour_df = run_query(f"""
 SELECT 
     hour, 
     SUM(ridership) AS total_ridership
-FROM ridership_hourly
+FROM ridership_detail
 {where_sql}
 GROUP BY hour
 ORDER BY total_ridership DESC
 LIMIT 1
-""")
+""", params)
 
 weekend_df = run_query(f"""
 SELECT
@@ -138,19 +178,19 @@ SELECT
         ELSE 'Weekday' 
     END AS day_type,
     SUM(ridership) AS total_ridership
-FROM ridership_hourly
+FROM ridership_detail
 {where_sql}
 GROUP BY day_type
-""")
+""", params)
 
 omny_df = run_query(f"""
 SELECT 
     payment_method, 
     SUM(ridership) AS total_ridership
-FROM ridership_hourly
+FROM ridership_detail
 {where_sql}
 GROUP BY payment_method
-""")
+""", params)
 
 # -----------------------
 # KPI Value Extraction
@@ -208,12 +248,12 @@ top_stations = run_query(f"""
 SELECT 
     station_complex, 
     SUM(ridership) AS total_ridership
-FROM ridership_hourly
+FROM ridership_detail
 {where_sql}
 GROUP BY station_complex
 ORDER BY total_ridership DESC
 LIMIT 10
-""")
+""", params)
 
 if not top_stations.empty:
     fig_top = px.bar(
@@ -232,8 +272,8 @@ if not top_stations.empty:
     st.plotly_chart(fig_top, width="stretch")
 
     st.caption(
-        "Times Square–42 St / Port Authority is the highest-ridership station complex, "
-        "reflecting its role as a major commuter and transfer hub."
+        f"{top_stations['station_complex'].iloc[0]} is the highest-ridership station complex "
+        "for the current selection."
     )
 else:
     st.warning("No data available for Top 10 Stations.")
@@ -245,11 +285,11 @@ hourly = run_query(f"""
 SELECT 
     hour, 
     SUM(ridership) AS total_ridership
-FROM ridership_hourly
+FROM ridership_detail
 {where_sql}
 GROUP BY hour
 ORDER BY hour
-""")
+""", params)
 
 if not hourly.empty:
     fig_hour = px.line(
@@ -279,11 +319,11 @@ borough_df = run_query(f"""
 SELECT 
     borough, 
     SUM(ridership) AS total_ridership
-FROM ridership_hourly
+FROM ridership_detail
 {where_sql}
 GROUP BY borough
 ORDER BY total_ridership DESC
-""")
+""", params)
 
 if not borough_df.empty:
     fig_borough = px.bar(
@@ -312,11 +352,11 @@ payment_df = run_query(f"""
 SELECT 
     payment_method, 
     SUM(ridership) AS total_ridership
-FROM ridership_hourly
+FROM ridership_detail
 {where_sql}
 GROUP BY payment_method
 ORDER BY total_ridership DESC
-""")
+""", params)
 
 if not payment_df.empty:
     fig_payment = px.pie(

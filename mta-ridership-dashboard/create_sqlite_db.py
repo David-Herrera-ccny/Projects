@@ -1,16 +1,15 @@
-import pandas as pd
-import sqlite3
+from pathlib import Path
 
-df = pd.read_csv("data/mta_ridership_clean.csv")
+from db import build_database, connect
 
-conn = sqlite3.connect("data/mta_ridership.db")
+BASE_DIR = Path(__file__).parent
 
-df.to_sql(
-    "ridership_hourly",
-    conn,
-    if_exists="replace",
-    index=False
-)
+CSV_PATH = BASE_DIR / "data" / "mta_ridership_clean.csv"
+DB_PATH = BASE_DIR / "data" / "mta_ridership.db"
+
+conn = connect(DB_PATH)
+
+build_database(conn, CSV_PATH)
 
 conn.close()
 

@@ -5,6 +5,9 @@
 *.csv
 !data/mta_ridership_sample.csv
 
+# Generated SQLite database (rebuilt from the CSV)
+data/*.db
+
 # Python cache
 __pycache__/
 *.pyc
